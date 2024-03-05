@@ -9,5 +9,5 @@
 python ./tools/analysis_tools/visualize/run.py \
     --predroot ./output/results.pkl \
     --out_folder ./output \
-    --demo_video test_demo.avi \
+    --demo_video ./output/test_demo.avi \
     --project_to_cam True

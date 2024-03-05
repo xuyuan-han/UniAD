@@ -21,8 +21,8 @@ class PlanningMetric(Metric):
         super().__init__(compute_on_step=compute_on_step)
         dx, bx, _ = gen_dx_bx([-50.0, 50.0, 0.5], [-50.0, 50.0, 0.5], [-10.0, 10.0, 20.0])
         dx, bx = dx[:2], bx[:2]
-        self.dx = nn.Parameter(dx, requires_grad=False)
-        self.bx = nn.Parameter(bx, requires_grad=False)
+        self.dx = nn.Parameter(dx, requires_grad=False) # (0.5, 0.5) size of each cell in the occupancy grid
+        self.bx = nn.Parameter(bx, requires_grad=False) # (-49.75, -49.75) origin of the occupancy grid
 
         _, _, self.bev_dimension = calculate_birds_eye_view_parameters(
             [-50.0, 50.0, 0.5], [-50.0, 50.0, 0.5], [-10.0, 10.0, 20.0]
@@ -46,38 +46,39 @@ class PlanningMetric(Metric):
         traj: torch.Tensor (n_future, 2)
         segmentation: torch.Tensor (n_future, 200, 200)
         '''
-        pts = np.array([
-            [-self.H / 2. + 0.5, self.W / 2.],
-            [self.H / 2. + 0.5, self.W / 2.],
-            [self.H / 2. + 0.5, -self.W / 2.],
-            [-self.H / 2. + 0.5, -self.W / 2.],
+        pts = np.array([ # BUG should be rounded up to integer with larger absolute value
+            [-self.H / 2. + 0.5, self.W / 2.],  # [-1.542, 0.925]
+            [self.H / 2. + 0.5, self.W / 2.],   # [2.542, 0.925]
+            [self.H / 2. + 0.5, -self.W / 2.],  # [2.542, -0.925]
+            [-self.H / 2. + 0.5, -self.W / 2.], # [-1.542, -0.925]
         ])
         pts = (pts - self.bx.cpu().numpy()) / (self.dx.cpu().numpy())
         pts[:, [0, 1]] = pts[:, [1, 0]]
-        rr, cc = polygon(pts[:,1], pts[:,0])
-        rc = np.concatenate([rr[:,None], cc[:,None]], axis=-1)
+        rr, cc = polygon(pts[:,1], pts[:,0]) # contains all the points in the polygon
+        rc = np.concatenate([rr[:,None], cc[:,None]], axis=-1) # (polygon_point_num,2) or (p_num,2)
 
         n_future, _ = traj.shape
         trajs = traj.view(n_future, 1, 2)
-        trajs[:,:,[0,1]] = trajs[:,:,[1,0]] # can also change original tensor
+        trajs[:,:,[0,1]] = trajs[:,:,[1,0]] # can also change original tensor (y,x)
         trajs = trajs / self.dx
-        trajs = trajs.cpu().numpy() + rc # (n_future, 32, 2)
+        trajs = trajs.cpu().numpy() + rc # (n_future, 32, 2) # XXX (4/0.5)*(2/0.5) = 32
+        # (n,1,2) + (p_num,2) -> (n,1,2) + (1,p_num,2) -> (n,p_num,2) + (1,p_num,2) -> (n,p_num,2)
 
-        r = trajs[:,:,0].astype(np.int32)
-        r = np.clip(r, 0, self.bev_dimension[0] - 1)
+        r = trajs[:,:,0].astype(np.int32) # (n_future, p_num) p_num = 32 (n_future, 32) y coordinate 
+        r = np.clip(r, 0, self.bev_dimension[0] - 1) 
 
-        c = trajs[:,:,1].astype(np.int32)
+        c = trajs[:,:,1].astype(np.int32) # (n_future, p_num) p_num = 32 (n_future, 32) x coordinate
         c = np.clip(c, 0, self.bev_dimension[1] - 1)
 
         collision = np.full(n_future, False)
         for t in range(n_future):
-            rr = r[t]
-            cc = c[t]
-            I = np.logical_and(
+            rr = r[t] # (32,) y coordinate
+            cc = c[t] # (32,) x coordinate
+            I = np.logical_and( # (32,) boolean mask judging whether the point is in the BEV
                 np.logical_and(rr >= 0, rr < self.bev_dimension[0]),
                 np.logical_and(cc >= 0, cc < self.bev_dimension[1]),
             )
-            collision[t] = np.any(segmentation[t, rr[I], cc[I]].cpu().numpy())
+            collision[t] = np.any(segmentation[t, rr[I], cc[I]].cpu().numpy()) # check whether the points is occupied
 
         return torch.from_numpy(collision).to(device=traj.device)
 
