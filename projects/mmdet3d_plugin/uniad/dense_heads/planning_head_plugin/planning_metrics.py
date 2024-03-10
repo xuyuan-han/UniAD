@@ -47,10 +47,10 @@ class PlanningMetric(Metric):
         segmentation: torch.Tensor (n_future, 200, 200)
         '''
         pts = np.array([ # BUG should be rounded up to integer with larger absolute value
-            [-self.H / 2. + 0.5, self.W / 2.],  # [-1.542, 0.925]
-            [self.H / 2. + 0.5, self.W / 2.],   # [2.542, 0.925]
-            [self.H / 2. + 0.5, -self.W / 2.],  # [2.542, -0.925]
-            [-self.H / 2. + 0.5, -self.W / 2.], # [-1.542, -0.925]
+            [-(self.H / 2. + 0.5), self.W / 2. + 0.5],  # [-2.542, 1.425]
+            [self.H / 2. + 0.5, self.W / 2. + 0.5],   # [2.542, 1.425]
+            [self.H / 2. + 0.5, -(self.W / 2. + 0.5)],  # [2.542, -1.425]
+            [-(self.H / 2. + 0.5), -(self.W / 2. + 0.5)], # [-2.542, -1.425]
         ])
         pts = (pts - self.bx.cpu().numpy()) / (self.dx.cpu().numpy())
         pts[:, [0, 1]] = pts[:, [1, 0]]
@@ -61,7 +61,8 @@ class PlanningMetric(Metric):
         trajs = traj.view(n_future, 1, 2)
         trajs[:,:,[0,1]] = trajs[:,:,[1,0]] # can also change original tensor (y,x)
         trajs = trajs / self.dx
-        trajs = trajs.cpu().numpy() + rc # (n_future, 32, 2) # XXX (4/0.5)*(2/0.5) = 32
+        trajs = trajs.cpu().numpy() + rc # (n_future, 32, 2) # (4/0.5)*(2/0.5) = 32
+        # After bug fix, the number of points p_num should be (5/0.5)*(2/0.5) = 40
         # (n,1,2) + (p_num,2) -> (n,1,2) + (1,p_num,2) -> (n,p_num,2) + (1,p_num,2) -> (n,p_num,2)
 
         r = trajs[:,:,0].astype(np.int32) # (n_future, p_num) p_num = 32 (n_future, 32) y coordinate 

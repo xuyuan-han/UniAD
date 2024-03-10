@@ -48,8 +48,8 @@ class PlanningHeadSingleMode(nn.Module):
         # Nuscenes
         self.bev_h = bev_h
         self.bev_w = bev_w
-        self.navi_embed = nn.Embedding(3, embed_dims)
-        self.reg_branch = nn.Sequential(
+        self.navi_embed = nn.Embedding(3, embed_dims) # embed the driver command
+        self.reg_branch = nn.Sequential( # map the driver command to planning_steps * 2
             nn.Linear(embed_dims, embed_dims),
             nn.ReLU(),
             nn.Linear(embed_dims, planning_steps * 2),
