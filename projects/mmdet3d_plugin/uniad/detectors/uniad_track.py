@@ -600,19 +600,19 @@ class UniADTrack(MVXTwoStageDetector):
                 if self.training:
                     #  [1, 10000, 256]
                     prev_bev = rearrange(prev_bev, 'b (h w) c -> b c h w', h=h, w=w)
-                    prev_bev = nn.Upsample(scale_factor=2)(prev_bev)  # [1, 256, 200, 200]
+                    # prev_bev = nn.Upsample(scale_factor=2)(prev_bev)  # [1, 256, 200, 200]
                     prev_bev = rearrange(prev_bev, 'b c h w -> b (h w) c')
                     outs_track["prev_bev"] = prev_bev
                 else:
                     #  [10000, 1, 256]
                     prev_bev = rearrange(prev_bev, '(h w) b c -> b c h w', h=h, w=w)
-                    prev_bev = nn.Upsample(scale_factor=2)(prev_bev)  # [1, 256, 200, 200]
+                    # prev_bev = nn.Upsample(scale_factor=2)(prev_bev)  # [1, 256, 200, 200]
                     prev_bev = rearrange(prev_bev, 'b c h w -> (h w) b c')
                     outs_track["prev_bev"] = prev_bev
 
             # bev_pos
             bev_pos  = outs_track["bev_pos"]  # [1, 256, 100, 100]
-            bev_pos = nn.Upsample(scale_factor=2)(bev_pos)  # [1, 256, 200, 200]
+            # bev_pos = nn.Upsample(scale_factor=2)(bev_pos)  # [1, 256, 200, 200]
             outs_track["bev_pos"] = bev_pos
         return outs_track
 

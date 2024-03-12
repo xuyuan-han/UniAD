@@ -16,8 +16,8 @@ import copy
 @HEADS.register_module()
 class PlanningHeadSingleMode(nn.Module):
     def __init__(self,
-                 bev_h=200,
-                 bev_w=200,
+                 bev_h=100,
+                 bev_w=100,
                  embed_dims=256,
                  planning_steps=6,
                  loss_planning=None,
