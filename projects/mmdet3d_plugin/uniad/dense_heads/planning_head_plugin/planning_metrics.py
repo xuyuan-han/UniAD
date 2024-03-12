@@ -27,7 +27,7 @@ class PlanningMetric(Metric):
         _, _, self.bev_dimension = calculate_birds_eye_view_parameters(
             [-50.0, 50.0, 0.5], [-50.0, 50.0, 0.5], [-10.0, 10.0, 20.0]
         )
-        self.bev_dimension = self.bev_dimension.numpy()
+        self.bev_dimension = self.bev_dimension.numpy()#从一个 PyTorch 张量（Tensor）转换为一个 NumPy 数组
 
         self.W = 1.85
         self.H = 4.084
@@ -53,7 +53,7 @@ class PlanningMetric(Metric):
             [-(self.H / 2. + 0.5), -(self.W / 2. + 0.5)], # [-2.542, -1.425]
         ])
         pts = (pts - self.bx.cpu().numpy()) / (self.dx.cpu().numpy())
-        pts[:, [0, 1]] = pts[:, [1, 0]]
+        pts[:, [0, 1]] = pts[:, [1, 0]] #为什么要交换？？？
         rr, cc = polygon(pts[:,1], pts[:,0]) # contains all the points in the polygon
         rc = np.concatenate([rr[:,None], cc[:,None]], axis=-1) # (polygon_point_num,2) or (p_num,2)
 

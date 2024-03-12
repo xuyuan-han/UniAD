@@ -590,7 +590,7 @@ class UniADTrack(MVXTwoStageDetector):
             assert h == w == 100
 
             bev_embed = rearrange(bev_embed, '(h w) b c -> b c h w', h=h, w=w)  # [1, 256, 100, 100]
-            bev_embed = nn.Upsample(scale_factor=2)(bev_embed)  # [1, 256, 200, 200]
+            # bev_embed = nn.Upsample(scale_factor=2)(bev_embed)  # [1, 256, 200, 200]
             bev_embed = rearrange(bev_embed, 'b c h w -> (h w) b c')
             outs_track["bev_embed"] = bev_embed
 

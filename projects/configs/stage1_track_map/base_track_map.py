@@ -39,14 +39,14 @@ _dim_ = 256
 _pos_dim_ = _dim_ // 2
 _ffn_dim_ = _dim_ * 2
 _num_levels_ = 4
-bev_h_ = 200
-bev_w_ = 200
+bev_h_ = 100 # (Simplified UniAD) 200
+bev_w_ = 100 # (Simplified UniAD) 200
 _feed_dim_ = _ffn_dim_
 _dim_half_ = _pos_dim_
 canvas_size = (bev_h_, bev_w_)
 
 # NOTE: You can change queue_length from 5 to 3 to save GPU memory, but at risk of performance drop.
-queue_length = 5  # each sequence contains `queue_length` frames.
+queue_length = 2  # (Simplified UniAD) 5 each sequence contains `queue_length` frames.
 
 ### traj prediction args ###
 predict_steps = 12
@@ -140,6 +140,7 @@ model = dict(
         loss_bbox=dict(type="L1Loss", loss_weight=0.25),
         loss_past_traj_weight=0.0,
     ),  # loss cfg for tracking
+    embed_dims = _dim_, # (Simplified UniAD) +
     pts_bbox_head=dict(
         type="BEVFormerTrackHead",
         bev_h=bev_h_,
@@ -569,7 +570,7 @@ lr_config = dict(
     warmup_ratio=1.0 / 3,
     min_lr_ratio=1e-3,
 )
-total_epochs = 6
+total_epochs = 1
 evaluation = dict(interval=6, pipeline=test_pipeline)
 runner = dict(type="EpochBasedRunner", max_epochs=total_epochs)
 log_config = dict(

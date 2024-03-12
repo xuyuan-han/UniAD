@@ -96,6 +96,8 @@ class NuScenesE2EDataset(NuScenesDataset):
         self.map_num_classes = 3
         if canvas_size[0] == 50:
             self.thickness = 1
+        elif canvas_size[0] == 100: # (Simplified UniAD) 50
+            self.thickness = 1
         elif canvas_size[0] == 200:
             self.thickness = 2
         else:

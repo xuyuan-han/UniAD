@@ -33,12 +33,12 @@ _dim_ = 256
 _pos_dim_ = _dim_ // 2
 _ffn_dim_ = _dim_ * 2
 _num_levels_ = 4
-bev_h_ = 200
-bev_w_ = 200
+bev_h_ = 100 # (Simplified UniAD) 200
+bev_w_ = 100 # (Simplified UniAD) 200
 _feed_dim_ = _ffn_dim_
 _dim_half_ = _pos_dim_
 canvas_size = (bev_h_, bev_w_)
-queue_length = 3  # each sequence contains `queue_length` frames.
+queue_length = 2  # (Simplified UniAD) 5 each sequence contains `queue_length` frames.
 
 ### traj prediction args ###
 predict_steps = 12
@@ -68,6 +68,7 @@ train_gt_iou_threshold=0.3
 
 model = dict(
     type="UniAD",
+    embed_dims = _dim_, # (Simplified UniAD) +
     gt_iou_threshold=train_gt_iou_threshold,
     queue_length=queue_length,
     use_grid_mask=True,
@@ -684,7 +685,7 @@ lr_config = dict(
     warmup_ratio=1.0 / 3,
     min_lr_ratio=1e-3,
 )
-total_epochs = 20
+total_epochs = 1
 evaluation = dict(interval=4, pipeline=test_pipeline)
 runner = dict(type="EpochBasedRunner", max_epochs=total_epochs)
 log_config = dict(
