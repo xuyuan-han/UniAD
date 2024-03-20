@@ -42,7 +42,7 @@ class SpatialCrossAttention(BaseModule):
     """
 
     def __init__(self,
-                 embed_dims=256,
+                 embed_dims=192, # (Simplified UniAD) 256
                  num_cams=6,
                  pc_range=None,
                  dropout=0.1,
@@ -50,7 +50,7 @@ class SpatialCrossAttention(BaseModule):
                  batch_first=False,
                  deformable_attention=dict(
                      type='MSDeformableAttention3D',
-                     embed_dims=256,
+                     embed_dims=192, # (Simplified UniAD) 256
                      num_levels=4),
                  **kwargs
                  ):
@@ -201,7 +201,7 @@ class MSDeformableAttention3D(BaseModule):
     """
 
     def __init__(self,
-                 embed_dims=256,
+                 embed_dims=192, # (Simplified UniAD) 256
                  num_heads=8,
                  num_levels=4,
                  num_points=8,

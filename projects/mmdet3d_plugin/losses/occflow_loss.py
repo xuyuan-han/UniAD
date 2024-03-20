@@ -13,7 +13,7 @@ from mmdet.models.losses.utils import weight_reduce_loss
 
 @LOSSES.register_module()
 class FieryBinarySegmentationLoss(nn.Module):
-    def __init__(self, use_top_k=False, top_k_ratio=1.0, future_discount=1.0, loss_weight=1.0, ignore_index=255):
+    def __init__(self, use_top_k=False, top_k_ratio=1.0, future_discount=1.0, loss_weight=1.0, ignore_index=191): # (Simplified UniAD) ignore_index=255
         super().__init__()
         self.use_top_k = use_top_k
         self.top_k_ratio = top_k_ratio
@@ -145,7 +145,7 @@ class DiceLossWithMasks(nn.Module):
                  reduction='mean',
                  naive_dice=False,
                  loss_weight=1.0,
-                 ignore_index=255,
+                 ignore_index=191, # (Simplified UniAD) ignore_index=255
                  eps=1e-3):
         """Compute dice loss.
 

@@ -56,7 +56,7 @@ class MyCustomBaseTransformerLayer(BaseModule):
                  attn_cfgs=None,
                  ffn_cfgs=dict(
                      type='FFN',
-                     embed_dims=256,
+                     embed_dims=192, # (Simplified UniAD) 256
                      feedforward_channels=1024,
                      num_fcs=2,
                      ffn_drop=0.,

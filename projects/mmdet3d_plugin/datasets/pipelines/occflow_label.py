@@ -9,7 +9,7 @@ import os
 
 @PIPELINES.register_module()
 class GenerateOccFlowLabels(object):
-    def __init__(self, grid_conf, ignore_index=255, only_vehicle=True, filter_invisible=True, deal_instance_255=False):
+    def __init__(self, grid_conf, ignore_index=191, only_vehicle=True, filter_invisible=True, deal_instance_255=False): # (Simplified UniAD) ignore_index=255
         self.grid_conf = grid_conf
         self.bev_resolution, self.bev_start_position, self.bev_dimension = calculate_birds_eye_view_parameters(
             grid_conf['xbound'], grid_conf['ybound'], grid_conf['zbound'],
@@ -169,7 +169,7 @@ class GenerateOccFlowLabels(object):
         instance_centerness, instance_offset, instance_flow, instance_backward_flow = self.center_offset_flow(
             instances, 
             all_gt_inds, 
-            ignore_index=255,
+            ignore_index=191, # (Simplified UniAD) ignore_index=255
             )
 
         invalid_mask = (segmentations[:, 0, 0] == self.ignore_index)
@@ -189,7 +189,7 @@ class GenerateOccFlowLabels(object):
         })
         return results
 
-    def center_offset_flow(self, instance_img, all_gt_inds, ignore_index=255, sigma=3.0):
+    def center_offset_flow(self, instance_img, all_gt_inds, ignore_index=191, sigma=3.0): # (Simplified UniAD) ignore_index=255
         seq_len, h, w = instance_img.shape
         # heatmap
         center_label = torch.zeros(seq_len, 1, h, w)

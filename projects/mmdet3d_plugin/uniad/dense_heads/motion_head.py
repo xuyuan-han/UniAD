@@ -48,7 +48,7 @@ class MotionHead(BaseMotionHead):
                  num_cls_fcs=2,
                  bev_h=30,
                  bev_w=30,
-                 embed_dims=256,
+                 embed_dims=192, # (Simplified UniAD) 256
                  num_anchor=6,
                  det_layer_num=6,
                  group_id_list=[],
@@ -245,7 +245,9 @@ class MotionHead(BaseMotionHead):
         # encode the center point of the track query
         reference_points_track = self._extract_tracking_centers(
             track_bbox_results, self.pc_range)
-        track_query_pos = self.boxes_query_embedding_layer(pos2posemb2d(reference_points_track.to(device)))  # B, A, D
+        # print('reference_points_track shape: ', reference_points_track.shape)
+        # print('pos2posemb2d shape: ', pos2posemb2d(reference_points_track.to(device), num_pos_feats=96).shape)
+        track_query_pos = self.boxes_query_embedding_layer(pos2posemb2d(reference_points_track.to(device), num_pos_feats=96))  # B, A, D
         
         # construct the learnable query positional embedding
         # split and stack according to groups
@@ -265,11 +267,11 @@ class MotionHead(BaseMotionHead):
 
         # we only use the last point of the anchor
         agent_level_embedding = self.agent_level_embedding_layer(
-            pos2posemb2d(agent_level_norm[..., -1, :]))  # G, P, D
+            pos2posemb2d(agent_level_norm[..., -1, :], num_pos_feats=96))  # G, P, D
         scene_level_ego_embedding = self.scene_level_ego_embedding_layer(
-            pos2posemb2d(scene_level_ego_norm[..., -1, :]))  # B, A, G, P , D
+            pos2posemb2d(scene_level_ego_norm[..., -1, :], num_pos_feats=96))  # B, A, G, P , D
         scene_level_offset_embedding = self.scene_level_offset_embedding_layer(
-            pos2posemb2d(scene_level_offset_norm[..., -1, :]))  # B, A, G, P , D
+            pos2posemb2d(scene_level_offset_norm[..., -1, :], num_pos_feats=96))  # B, A, G, P , D
 
         batch_size, num_agents = scene_level_ego_embedding.shape[:2]
         agent_level_embedding = agent_level_embedding[None,None, ...].expand(batch_size, num_agents, -1, -1, -1)

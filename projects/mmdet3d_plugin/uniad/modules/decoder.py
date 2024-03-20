@@ -158,7 +158,7 @@ class CustomMSDeformableAttention(BaseModule):
     """
 
     def __init__(self,
-                 embed_dims=256,
+                 embed_dims=192, # (Simplified UniAD) 256
                  num_heads=8,
                  num_levels=4,
                  num_points=4,

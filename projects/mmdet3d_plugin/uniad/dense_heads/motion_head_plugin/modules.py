@@ -25,7 +25,7 @@ class MotionTransformerDecoder(BaseModule):
             `LN`.
     """
 
-    def __init__(self, pc_range=None, embed_dims=256, transformerlayers=None, num_layers=3, **kwargs):
+    def __init__(self, pc_range=None, embed_dims=192, transformerlayers=None, num_layers=3, **kwargs): # (Simplified UniAD) embed_dims=256
         super(MotionTransformerDecoder, self).__init__()
         self.pc_range = pc_range
         self.embed_dims = embed_dims
@@ -160,11 +160,11 @@ class MotionTransformerDecoder(BaseModule):
                     2), track_bbox_results, with_translation_transform=False, with_rotation_transform=True).squeeze(2).detach()
 
                 agent_level_embedding = agent_level_embedding_layer(pos2posemb2d(
-                    norm_points(ep_agent_embed[..., -1, :], self.pc_range)))
+                    norm_points(ep_agent_embed[..., -1, :], self.pc_range), num_pos_feats=96))
                 scene_level_ego_embedding = scene_level_ego_embedding_layer(pos2posemb2d(
-                    norm_points(ep_ego_embed[..., -1, :], self.pc_range)))
+                    norm_points(ep_ego_embed[..., -1, :], self.pc_range), num_pos_feats=96))
                 scene_level_offset_embedding = scene_level_offset_embedding_layer(pos2posemb2d(
-                    norm_points(ep_offset_embed[..., -1, :], self.pc_range)))
+                    norm_points(ep_offset_embed[..., -1, :], self.pc_range), num_pos_feats=96))
 
                 intermediate.append(query_embed)
                 intermediate_reference_trajs.append(reference_trajs)
@@ -177,7 +177,7 @@ class TrackAgentInteraction(BaseModule):
     Modeling the interaction between the agents
     """
     def __init__(self,
-                 embed_dims=256,
+                 embed_dims=192, # (Simplified UniAD) 256
                  num_heads=8,
                  dropout=0.1,
                  batch_first=True,
@@ -217,7 +217,7 @@ class MapInteraction(BaseModule):
     Modeling the interaction between the agent and the map
     """
     def __init__(self,
-                 embed_dims=256,
+                 embed_dims=192, # (Simplified UniAD) 256
                  num_heads=8,
                  dropout=0.1,
                  batch_first=True,
@@ -256,7 +256,7 @@ class IntentionInteraction(BaseModule):
     Modeling the interaction between anchors
     """
     def __init__(self,
-                 embed_dims=256,
+                 embed_dims=192, # (Simplified UniAD) 256
                  num_heads=8,
                  dropout=0.1,
                  batch_first=True,

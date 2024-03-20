@@ -38,7 +38,7 @@ class PerceptionTransformer(BaseModule):
                  two_stage_num_proposals=300,
                  encoder=None,
                  decoder=None,
-                 embed_dims=256,
+                 embed_dims=192, # (Simplified UniAD) 256
                  rotate_prev_bev=True,
                  use_shift=True,
                  use_can_bus=True,

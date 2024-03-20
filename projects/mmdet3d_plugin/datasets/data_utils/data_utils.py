@@ -136,7 +136,7 @@ def obtain_map_info(nusc,
                     nusc_maps,
                     sample,
                     patch_size=(102.4, 102.4),
-                    canvas_size=(256, 256),
+                    canvas_size=(192, 192), # (Simplified UniAD) (256, 256)
                     layer_names=['lane_divider', 'road_divider'],
                     thickness=10):
     """

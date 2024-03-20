@@ -26,18 +26,18 @@ class OccHead(BaseModule):
                  receptive_field=3,
                  n_future=4,
                  spatial_extent=(50, 50),
-                 ignore_index=255,
+                 ignore_index=191, # (Simplified UniAD) ignore_index=255
 
                  # BEV
                  grid_conf = None,
 
-                 bev_size=(200, 200),
-                 bev_emb_dim=256,
+                 bev_size=(50, 50), # (Simplified UniAD) 200
+                 bev_emb_dim=192, # (Simplified UniAD) 256
                  bev_proj_dim=64,
                  bev_proj_nlayers=1,
 
                  # Query
-                 query_dim=256,
+                 query_dim=192, # (Simplified UniAD) 256
                  query_mlp_layers=3,
                  detach_query_pos=True,
                  temporal_mlp_layer=2,
@@ -214,8 +214,9 @@ class OccHead(BaseModule):
         
         for i in range(self.n_future_blocks):
             # Downscale
+            print('last_state shape: ', last_state.shape)
             cur_state = self.downscale_convs[i](last_state)  # /4 -> /8
-
+            print('cur_state shape 1: ', cur_state.shape)
             # Attention
             # temporal_aware ins_query
             cur_ins_query = self.temporal_mlps[i](last_ins_query)  # [b, q, d]
@@ -227,10 +228,10 @@ class OccHead(BaseModule):
 
             mask_preds.append(mask_pred)  # /1
             temporal_embed_for_mask_attn.append(cur_ins_emb_for_mask_attn)
-
+            print('cur_state shape 2: ', cur_state.shape)
             cur_state = rearrange(cur_state, 'b c h w -> (h w) b c')
             cur_ins_query = rearrange(cur_ins_query, 'b q c -> q b c')
-
+            print('cur_state shape 3: ', cur_state.shape)
             for j in range(n_trans_layer_each_block):
                 trans_layer_ind = i * n_trans_layer_each_block + j
                 trans_layer = self.transformer_decoder.layers[trans_layer_ind]
@@ -244,7 +245,7 @@ class OccHead(BaseModule):
                     query_key_padding_mask=None,
                     key_padding_mask=None
                 )  # out size: [h'*w', b, c]
-
+            print('cur_state shape 4: ', cur_state.shape)
             cur_state = rearrange(cur_state, '(h w) b c -> b c h w', h=self.bev_size[0]//8)
             
             # Upscale to /4

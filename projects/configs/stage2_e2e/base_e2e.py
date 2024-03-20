@@ -29,16 +29,16 @@ group_id_list = [[0,1,2,3,4], [6,7], [8], [5,9]]
 input_modality = dict(
     use_lidar=False, use_camera=True, use_radar=False, use_map=False, use_external=True
 )
-_dim_ = 256
+_dim_ = 192 # (Simplified UniAD) 256
 _pos_dim_ = _dim_ // 2
 _ffn_dim_ = _dim_ * 2
 _num_levels_ = 4
-bev_h_ = 200
-bev_w_ = 200
+bev_h_ = 50 # (Simplified UniAD) 200
+bev_w_ = 50 # (Simplified UniAD) 200
 _feed_dim_ = _ffn_dim_
 _dim_half_ = _pos_dim_
 canvas_size = (bev_h_, bev_w_)
-queue_length = 3  # each sequence contains `queue_length` frames.
+queue_length = 2  # each sequence contains `queue_length` frames.
 
 ### traj prediction args ###
 predict_steps = 12
@@ -68,6 +68,7 @@ train_gt_iou_threshold=0.3
 
 model = dict(
     type="UniAD",
+    embed_dims = _dim_, # (Simplified UniAD) +
     gt_iou_threshold=train_gt_iou_threshold,
     queue_length=queue_length,
     use_grid_mask=True,
@@ -331,9 +332,9 @@ model = dict(
         type='OccHead',
 
         grid_conf=occflow_grid_conf,
-        ignore_index=255,
+        ignore_index=191, # (Simplified UniAD) 255
 
-        bev_proj_dim=256,
+        bev_proj_dim=192, # (Simplified UniAD) 256
         bev_proj_nlayers=4,
 
         # Transformer
@@ -346,14 +347,14 @@ model = dict(
                 type='DetrTransformerDecoderLayer',
                 attn_cfgs=dict(
                     type='MultiheadAttention',
-                    embed_dims=256,
+                    embed_dims=192, # (Simplified UniAD) 256
                     num_heads=8,
                     attn_drop=0.0,
                     proj_drop=0.0,
                     dropout_layer=None,
                     batch_first=False),
                 ffn_cfgs=dict(
-                    embed_dims=256,
+                    embed_dims=192, # (Simplified UniAD) 256
                     feedforward_channels=2048,  # change to 512
                     num_fcs=2,
                     act_cfg=dict(type='ReLU', inplace=True),
@@ -365,7 +366,7 @@ model = dict(
                                  'ffn', 'norm')),
             init_cfg=None),
         # Query
-        query_dim=256,
+        query_dim=192, # (Simplified UniAD) 256
         query_mlp_layers=3,
 
         aux_loss_weight=1.,
@@ -375,7 +376,7 @@ model = dict(
             top_k_ratio=0.25,
             future_discount=0.95,
             loss_weight=5.0,
-            ignore_index=255,
+            ignore_index=191, # (Simplified UniAD) 255
         ),
         loss_dice=dict(
             type='DiceLossWithMasks',
@@ -384,7 +385,7 @@ model = dict(
             reduction='mean',
             naive_dice=True,
             eps=1.0,
-            ignore_index=255,
+            ignore_index=191, # (Simplified UniAD) 255
             loss_weight=1.0),
 
         
@@ -439,7 +440,7 @@ model = dict(
     ),
     planning_head=dict(
         type='PlanningHeadSingleMode',
-        embed_dims=256,
+        embed_dims=192, # (Simplified UniAD) 256
         planning_steps=planning_steps,
         loss_planning=dict(type='PlanningLoss'),
         loss_collision=[dict(type='CollisionLoss', delta=0.0, weight=2.5),
@@ -491,8 +492,8 @@ train_pipeline = [
         ins_inds_add_1=True,    # ins_inds start from 1
     ),
 
-    dict(type='GenerateOccFlowLabels', grid_conf=occflow_grid_conf, ignore_index=255, only_vehicle=True, 
-                                    filter_invisible=False),  # NOTE: Currently vis_token is not in pkl 
+    dict(type='GenerateOccFlowLabels', grid_conf=occflow_grid_conf, ignore_index=191, only_vehicle=True, 
+                                    filter_invisible=False),  # NOTE: Currently vis_token is not in pkl # (Simplified UniAD) ignore_index=255
 
     dict(type="ObjectRangeFilterTrack", point_cloud_range=point_cloud_range),
     dict(type="ObjectNameFilterTrack", classes=class_names),
@@ -553,8 +554,8 @@ test_pipeline = [
          with_ins_inds_3d=False,
          ins_inds_add_1=True, # ins_inds start from 1
          ),
-    dict(type='GenerateOccFlowLabels', grid_conf=occflow_grid_conf, ignore_index=255, only_vehicle=True, 
-                                       filter_invisible=False),
+    dict(type='GenerateOccFlowLabels', grid_conf=occflow_grid_conf, ignore_index=191, only_vehicle=True, 
+                                       filter_invisible=False), # (Simplified UniAD) ignore_index=255
     dict(
         type="MultiScaleFlipAug3D",
         img_scale=(1600, 900),
@@ -684,7 +685,7 @@ lr_config = dict(
     warmup_ratio=1.0 / 3,
     min_lr_ratio=1e-3,
 )
-total_epochs = 20
+total_epochs = 1
 evaluation = dict(interval=4, pipeline=test_pipeline)
 runner = dict(type="EpochBasedRunner", max_epochs=total_epochs)
 log_config = dict(

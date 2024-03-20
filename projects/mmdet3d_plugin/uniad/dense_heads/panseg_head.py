@@ -53,12 +53,12 @@ class PansegformerHead(SegDETRHead):
             overlap_threshold_stuff=0.2,
             thing_transformer_head=dict(
                 type='TransformerHead',  # mask decoder for things
-                d_model=256,
+                d_model=192, # (Simplified UniAD) 256
                 nhead=8,
                 num_decoder_layers=6),
             stuff_transformer_head=dict(
                 type='TransformerHead',  # mask decoder for stuff
-                d_model=256,
+                d_model=192, # (Simplified UniAD) 256
                 nhead=8,
                 num_decoder_layers=6),
             loss_mask=dict(type='DiceLoss', weight=2.0),

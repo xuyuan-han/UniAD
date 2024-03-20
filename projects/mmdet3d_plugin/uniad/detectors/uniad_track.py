@@ -58,7 +58,7 @@ class UniADTrack(MVXTwoStageDetector):
             iou_thres=0.3,
         ),
         pc_range=None,
-        embed_dims=256,
+        embed_dims=192, # (Simplified UniAD) 256
         num_query=900,
         num_classes=10,
         vehicle_id_list=None,
