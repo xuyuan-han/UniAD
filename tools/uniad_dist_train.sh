@@ -30,6 +30,7 @@ python -m torch.distributed.launch \
     --node_rank=${RANK} \
     $(dirname "$0")/train.py \
     $CFG \
+    # --resume-from ${WORK_DIR}latest.pth \
     --launcher pytorch ${@:3} \
     --deterministic \
     --work-dir ${WORK_DIR} \

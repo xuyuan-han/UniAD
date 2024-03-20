@@ -38,7 +38,7 @@ bev_w_ = 100 # (Simplified UniAD) 200
 _feed_dim_ = _ffn_dim_
 _dim_half_ = _pos_dim_
 canvas_size = (bev_h_, bev_w_)
-queue_length = 2  # (Simplified UniAD) 5 each sequence contains `queue_length` frames.
+queue_length = 4  # (Simplified UniAD) 5 each sequence contains `queue_length` frames.
 
 ### traj prediction args ###
 predict_steps = 12
@@ -685,7 +685,7 @@ lr_config = dict(
     warmup_ratio=1.0 / 3,
     min_lr_ratio=1e-3,
 )
-total_epochs = 1
+total_epochs = 20
 evaluation = dict(interval=4, pipeline=test_pipeline)
 runner = dict(type="EpochBasedRunner", max_epochs=total_epochs)
 log_config = dict(
